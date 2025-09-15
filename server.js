@@ -1,27 +1,30 @@
-// server.js
 const express = require("express");
 const bodyParser = require("body-parser");
 const nodemailer = require("nodemailer");
 const cors = require("cors");
 
 const app = express();
-app.use(cors({
-  origin: "https://github.com/Shashank-2004"   // your GitHub Pages link
-}));
- // You can specify the allowed origin here for better security: app.use(cors({ origin: 'https://shashank-2004.github.io' }));
+
+app.use(cors({ origin: "https://shashank-2004.github.io" })); 
 app.use(bodyParser.json());
 
-// Setup email transporter using environment variables
+// health check
+app.get("/", (req, res) => {
+  res.json({ message: "Backend is running 🚀" });
+});
+
+// email transporter
 let transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: process.env.GMAIL_USER, // Use environment variables for security
-    pass: process.env.GMAIL_PASS  // Use environment variables for security
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_PASS
   }
 });
 
 app.post("/submit", (req, res) => {
   const { name, mobile, age, email } = req.body;
+  console.log("📩 Form data received:", req.body);
 
   if (!name || !mobile || !age || !email) {
     return res.json({ success: false, message: "All fields are required" });
@@ -29,7 +32,7 @@ app.post("/submit", (req, res) => {
 
   const mailOptions = {
     from: `"Consultation Form" <${process.env.GMAIL_USER}>`,
-    to: process.env.GMAIL_USER, // The recipient can also be an environment variable
+    to: process.env.GMAIL_USER,
     replyTo: email,
     subject: "New Consultation Request",
     html: `
@@ -45,15 +48,12 @@ app.post("/submit", (req, res) => {
 
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
-      console.error(error);
+      console.error("❌ Mail error:", error);
       return res.json({ success: false, message: "Failed to send email" });
     }
     res.json({ success: true, message: "Email sent successfully!" });
   });
 });
 
-// Use a dynamic port provided by the hosting environment
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
