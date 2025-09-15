@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Consultation Form</title>
+  <style>
+    :root{ --bg:#f6f8fb; --card:#ffffff; --accent:#0b74de; --muted:#666; }
+    body{
+      margin:0; font-family:Inter, system-ui, sans-serif;
+      background:linear-gradient(180deg,var(--bg),#eef3fb);
+      display:flex; align-items:center; justify-content:center;
+      min-height:100vh; padding:24px;
+    }
+    .card{
+      background:var(--card); border-radius:12px;
+      box-shadow:0 8px 30px rgba(10,20,50,0.08);
+      width:100%; max-width:520px; padding:22px;
+    }
+    h1{ margin:0 0 12px; font-size:20px; }
+    p.lead{ margin:0 0 18px; color:var(--muted); font-size:14px; }
+    .field{ display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
+    label{ font-size:13px; color:#123; }
+    input[type="text"],input[type="email"],input[type="tel"],input[type="number"]{
+      padding:10px 12px; border:1px solid #d6dbe8; border-radius:8px;
+      font-size:15px; outline:none; transition:box-shadow .12s, border-color .12s;
+    }
+    input:focus{ border-color:var(--accent); box-shadow:0 4px 18px rgba(11,116,222,0.12); }
+    .actions{ display:flex; gap:10px; align-items:center; margin-top:8px; }
+    button{
+      background:var(--accent); color:white; border:0; padding:10px 14px;
+      border-radius:10px; cursor:pointer; font-weight:600;
+    }
+    button.secondary{ background:transparent; border:1px solid #c9d6ef; color:#123; }
+    .message{ margin-top:12px; font-size:14px; }
+    .error{ color:#b00020; }
+    .success{ color:green; }
+  </style>
+</head>
+<body>
+  <main class="card" role="main" aria-labelledby="formTitle">
+    <h1 id="formTitle">Consultation Form</h1>
+    <p class="lead">Please fill these details and click <strong>Submit</strong>. All fields are required.</p>
+
+    <form id="consultForm">
+      <div class="field">
+        <label for="name">Full name</label>
+        <input id="name" name="name" type="text" required placeholder="e.g. Prafull kumar vats" />
+      </div>
+
+      <div class="field">
+        <label for="mobile">Mobile number</label>
+        <input id="mobile" name="mobile" type="tel" required placeholder="10 digits only" />
+      </div>
+
+      <div class="field">
+        <label for="age">Age</label>
+        <input id="age" name="age" type="number" required placeholder="e.g. 28" />
+      </div>
+
+      <div class="field">
+        <label for="email">Email address</label>
+        <input id="email" name="email" type="email" required placeholder="you@example.com" />
+      </div>
+
+      <div class="actions">
+        <button type="submit">Submit</button>
+        <button type="button" class="secondary" id="resetBtn">Reset</button>
+      </div>
+
+      <div id="feedback" class="message" role="status" aria-live="polite"></div>
+    </form>
+  </main>
+
+  <script>
+    const form = document.getElementById('consultForm');
+    const feedback = document.getElementById('feedback');
+    const resetBtn = document.getElementById('resetBtn');
+
+    form.addEventListener('submit', async function(e){
+      e.preventDefault();
+      feedback.textContent = "Submitting...";
+
+      const formData = {
+        name: form.name.value.trim(),
+        mobile: form.mobile.value.trim(),
+        age: form.age.value.trim(),
+        email: form.email.value.trim()
+      };
+
+      try {
+        const res = await fetch(" https://consult-form.onrender.com", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData)
+        });
+
+        const result = await res.json();
+        if(result.success){
+          feedback.textContent = "✅ Form submitted successfully. Email sent!";
+          feedback.className = "message success";
+          form.reset();
+        } else {
+          feedback.textContent = "❌ " + result.message;
+          feedback.className = "message error";
+        }
+      } catch(err){
+        feedback.textContent = "❌ Error: " + err.message;
+        feedback.className = "message error";
+      }
+    });
+
+    resetBtn.addEventListener('click', () => {
+      form.reset();
+      feedback.textContent = '';
+    });
+  </script>
+</body>
+</html>
