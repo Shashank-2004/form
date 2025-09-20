@@ -35,12 +35,7 @@
     .message{ margin-top:12px; font-size:14px; }
     .error{ color:#b00020; }
     .success{ color:green; }
-
-    @media (max-width: 600px) {
-      .body{
-        height:100%;
-      }
-    }
+    @media (max-width: 600px) { .body{ height:100%; } }
   </style>
 </head>
 <body>
@@ -60,12 +55,12 @@
       </div>
 
       <div class="field">
-        <label for="area">Age</label>
+        <label for="age">Age</label>
         <input id="age" name="age" type="number" required placeholder="Enter your age" />
       </div>
 
       <div class="field">
-        <label for="age">Area You Belong To</label>
+        <label for="area">Area You Belong To</label>
         <input id="area" name="area" type="text" required placeholder="Enter your area or location" />
       </div>
 
@@ -76,7 +71,7 @@
 
       <div class="field">
         <label for="comment">Comment</label>
-        <input id="comment" name="comment" type="text" rows="4" required placeholder="Write your query or comment here..." />
+        <input id="comment" name="comment" type="text" required placeholder="Write your query or comment here..." />
       </div>
 
       <div class="actions">
@@ -96,6 +91,7 @@
     form.addEventListener('submit', async function(e){
       e.preventDefault();
       feedback.textContent = "Submitting...";
+      feedback.className = "message";
 
       const formData = {
         name: form.name.value.trim(),
@@ -103,9 +99,8 @@
         age: form.age.value.trim(),
         area: form.area.value.trim(),
         email: form.email.value.trim(),
-        message: form.message.value.trim()
-};
-
+        comment: form.comment.value.trim()
+      };
 
       try {
         const res = await fetch("https://consult-form.onrender.com/submit", {
@@ -116,7 +111,7 @@
 
         const result = await res.json();
         if(result.success){
-          feedback.textContent = "✅ Form submitted successfully. Email sent!";
+          feedback.textContent = "✅ Form submitted successfully!";
           feedback.className = "message success";
           form.reset();
         } else {
